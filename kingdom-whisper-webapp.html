@@ -1,0 +1,1362 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Kingdom's Whisper - Political Strategy Game</title>
+    <meta name="description" content="A Strategic 4-Player Political Role-Playing Web Game">
+    <meta name="theme-color" content="#F59E0B">
+    <link rel="manifest" href="data:application/json;base64,eyJuYW1lIjoiS2luZ2RvbSdzIFdoaXNwZXIiLCJzaG9ydF9uYW1lIjoiS2luZ2RvbSIsInN0YXJ0X3VybCI6Ii8iLCJkaXNwbGF5Ijoic3RhbmRhbG9uZSIsImJhY2tncm91bmRfY29sb3IiOiIjMEYxNzJBIiwidGhlbWVfY29sb3IiOiIjRjU5RTBCIn0=">
+    <style>
+        :root {
+            --royal-900: #0F172A;
+            --royal-800: #1E1B4B;
+            --royal-700: #312E81;
+            --royal-600: #3730A3;
+            --gold-500: #F59E0B;
+            --gold-600: #D97706;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: rgba(100, 116, 139, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, var(--royal-900), var(--royal-800), var(--royal-700));
+            color: var(--text-light);
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 10px;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.9);
+            border-radius: 16px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .crown {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 15px;
+            background: linear-gradient(135deg, #FBBF24, var(--gold-500));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            filter: drop-shadow(0 0 15px rgba(245, 158, 11, 0.5));
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #FBBF24, var(--gold-500));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            margin-bottom: 20px;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .card {
+            background: rgba(30, 27, 75, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #cbd5e1;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: rgba(51, 65, 85, 0.8);
+            color: var(--text-light);
+            font-size: 16px;
+            font-family: inherit;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: var(--gold-500);
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            gap: 8px;
+            min-height: 48px;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--royal-600), var(--royal-700));
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(55, 48, 163, 0.3);
+        }
+
+        .btn-gold {
+            background: linear-gradient(135deg, var(--gold-500), var(--gold-600));
+            color: white;
+        }
+
+        .btn-gold:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10B981, #059669);
+            color: white;
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #EF4444, #DC2626);
+            color: white;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        .grid {
+            display: grid;
+            gap: 15px;
+        }
+
+        .grid-2 {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .role-card {
+            background: linear-gradient(135deg, rgba(30, 27, 75, 0.9), rgba(51, 65, 85, 0.8));
+            border-radius: 12px;
+            padding: 20px;
+            border: 2px solid var(--role-border, rgba(245, 158, 11, 0.3));
+            position: relative;
+            text-align: center;
+        }
+
+        .role-icon {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 12px;
+            background: var(--role-color, var(--gold-500));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: white;
+        }
+
+        .game-phase {
+            background: rgba(30, 27, 75, 0.9);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            margin-bottom: 15px;
+        }
+
+        .phase-icon {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 12px;
+            background: linear-gradient(135deg, var(--royal-600), var(--royal-700));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--gold-500);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: rgba(51, 65, 85, 0.6);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold-500), #FBBF24);
+            transition: width 0.5s ease;
+        }
+
+        .chat-container {
+            background: rgba(30, 27, 75, 0.9);
+            border-radius: 12px;
+            height: 250px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+
+        .chat-message {
+            margin-bottom: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .message-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            flex: 1;
+        }
+
+        .message-sender {
+            font-weight: 600;
+            font-size: 12px;
+            margin-bottom: 2px;
+        }
+
+        .message-text {
+            color: #cbd5e1;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+
+        .chat-input {
+            display: flex;
+            padding: 12px;
+            border-top: 1px solid var(--border-color);
+            gap: 8px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            margin: 0;
+            padding: 8px 12px;
+        }
+
+        .players-list {
+            list-style: none;
+        }
+
+        .player-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            margin-bottom: 8px;
+            background: rgba(51, 65, 85, 0.6);
+            border-radius: 8px;
+            border-left: 3px solid var(--role-color, var(--text-muted));
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px;
+            margin-bottom: 6px;
+            background: rgba(51, 65, 85, 0.6);
+            border-radius: 6px;
+        }
+
+        .leaderboard-item.first {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2));
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        .rank {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #64748b;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+        }
+
+        .rank.first {
+            background: var(--gold-500);
+            color: var(--royal-800);
+        }
+
+        .crisis-alert {
+            background: linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(239, 68, 68, 0.2));
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 12px 0;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .spinner {
+            width: 30px;
+            height: 30px;
+            border: 2px solid rgba(245, 158, 11, 0.2);
+            border-top: 2px solid var(--gold-500);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .divider {
+            position: relative;
+            margin: 15px 0;
+            text-align: center;
+        }
+
+        .divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: var(--border-color);
+        }
+
+        .divider span {
+            background: rgba(30, 27, 75, 0.9);
+            padding: 0 12px;
+            color: var(--text-muted);
+            font-size: 12px;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 5px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .card {
+                padding: 15px;
+            }
+
+            .game-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Desktop layout */
+        @media (min-width: 769px) {
+            .game-grid {
+                display: grid;
+                grid-template-columns: 280px 1fr 280px;
+                gap: 20px;
+            }
+        }
+
+        /* PWA styling */
+        @media (display-mode: standalone) {
+            body {
+                padding-top: 20px;
+            }
+        }
+
+        /* Role-specific colors */
+        .role-king {
+            --role-color: #F59E0B;
+            --role-border: rgba(245, 158, 11, 0.3);
+        }
+
+        .role-minister {
+            --role-color: #3B82F6;
+            --role-border: rgba(59, 130, 246, 0.3);
+        }
+
+        .role-villager {
+            --role-color: #10B981;
+            --role-border: rgba(16, 185, 129, 0.3);
+        }
+
+        .role-secret_agent {
+            --role-color: #EF4444;
+            --role-border: rgba(239, 68, 68, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="crown">👑</div>
+            <h1>Kingdom's Whisper</h1>
+            <p class="subtitle">Strategic Political Role-Playing Game</p>
+        </div>
+
+        <!-- Lobby Screen -->
+        <div id="lobby" class="screen active">
+            <div style="max-width: 400px; margin: 0 auto;">
+                <div class="card">
+                    <h2 style="text-align: center; margin-bottom: 20px; color: var(--gold-500);">Join the Kingdom</h2>
+                    
+                    <div class="form-group">
+                        <label for="playerName">Your Name</label>
+                        <input type="text" id="playerName" placeholder="Enter your name" maxlength="20">
+                    </div>
+
+                    <button class="btn btn-primary btn-full" id="createRoomBtn">
+                        👑 Create New Game
+                    </button>
+
+                    <div class="divider">
+                        <span>OR</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="roomCode">Room Code</label>
+                        <input type="text" id="roomCode" placeholder="KW-XXXX" maxlength="7" style="text-transform: uppercase;">
+                    </div>
+
+                    <button class="btn btn-gold btn-full" id="joinRoomBtn">
+                        👥 Join Game
+                    </button>
+
+                    <div class="grid grid-2" style="margin-top: 20px;">
+                        <div class="card" style="text-align: center; padding: 15px;">
+                            <div style="font-size: 20px; margin-bottom: 5px;">👥</div>
+                            <div>4 Players</div>
+                        </div>
+                        <div class="card" style="text-align: center; padding: 15px;">
+                            <div style="font-size: 20px; margin-bottom: 5px;">🎯</div>
+                            <div>15 Sessions</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game" class="screen">
+            <!-- Session Progress -->
+            <div class="card">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h3>Room: <span id="currentRoomCode" style="color: var(--gold-500);">KW-XXXX</span></h3>
+                    <span>Session <span id="currentSession">1</span>/<span id="maxSessions">15</span></span>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="sessionProgress" style="width: 0%;"></div>
+                </div>
+                <div style="text-align: center; margin-top: 5px;">
+                    <span id="playerCount">0</span>/4 Players Connected
+                </div>
+            </div>
+
+            <div class="game-grid">
+                <!-- Left Column: Role & Players -->
+                <div class="left-column">
+                    <!-- Player Role Card -->
+                    <div id="roleCard" class="role-card role-king">
+                        <div class="role-icon">👑</div>
+                        <h3 id="roleName">The King</h3>
+                        <p id="roleDescription" style="color: var(--text-muted); margin: 8px 0;">You rule the kingdom</p>
+                        
+                        <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                            <span>Score:</span>
+                            <span id="playerScore" style="color: var(--role-color); font-weight: bold;">0</span>
+                        </div>
+                        
+                        <div id="sessionsInfo" style="display: flex; justify-content: space-between; margin: 10px 0;">
+                            <span>Survived:</span>
+                            <span id="sessionsSurvived">0</span>
+                        </div>
+
+                        <div id="knownPlayers" class="hidden" style="margin-top: 12px; padding: 10px; background: rgba(51, 65, 85, 0.6); border-radius: 6px;">
+                            <h4 style="margin-bottom: 6px; font-size: 12px;">Known Players:</h4>
+                            <div id="knownPlayersList" style="font-size: 11px;"></div>
+                        </div>
+
+                        <div style="margin-top: 12px; padding: 10px; background: rgba(51, 65, 85, 0.6); border-radius: 6px;">
+                            <p id="roleTip" style="font-size: 11px; color: var(--text-muted); line-height: 1.3;"></p>
+                        </div>
+                    </div>
+
+                    <!-- Players Panel -->
+                    <div class="card">
+                        <h3 style="margin-bottom: 12px; font-size: 16px;">👥 Players</h3>
+                        <ul id="playersList" class="players-list"></ul>
+                    </div>
+                </div>
+
+                <!-- Center Column: Game Board -->
+                <div class="center-column">
+                    <!-- Current Phase -->
+                    <div class="game-phase">
+                        <div class="phase-icon" id="phaseIcon">⏳</div>
+                        <h3 id="phaseName">Waiting for Players</h3>
+                        <p id="phaseDescription" style="color: var(--text-muted); margin-top: 5px; font-size: 14px;">Gathering the royal court...</p>
+                    </div>
+
+                    <!-- Crisis Display -->
+                    <div id="crisisDisplay" class="crisis-alert hidden">
+                        <h4 style="color: var(--gold-500); margin-bottom: 6px; font-size: 14px;">⚠️ Current Crisis</h4>
+                        <p id="crisisText" style="font-size: 13px;"></p>
+                    </div>
+
+                    <!-- Phase Content -->
+                    <div class="card">
+                        <div id="phaseContent">
+                            <div class="loading">
+                                <div class="spinner"></div>
+                                <p>Waiting for players...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="card">
+                        <h3 style="margin-bottom: 12px; font-size: 16px;">Actions</h3>
+                        <div class="grid">
+                            <button class="btn btn-primary">📖 Role Guide</button>
+                            <button class="btn btn-gold" id="addTestBtn">➕ Add Test Player</button>
+                            <button class="btn btn-danger" id="leaveGameBtn">🚪 Leave Game</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Column: Chat & Leaderboard -->
+                <div class="right-column">
+                    <!-- Chat -->
+                    <div class="chat-container">
+                        <div style="padding: 12px; border-bottom: 1px solid var(--border-color); font-weight: 600; font-size: 14px;">
+                            💬 Kingdom Council
+                        </div>
+                        <div class="chat-messages" id="chatMessages">
+                            <div style="text-align: center; color: var(--text-muted); padding: 20px; font-size: 13px;">
+                                No messages yet. Start the conversation!
+                            </div>
+                        </div>
+                        <div class="chat-input">
+                            <input type="text" id="chatInput" placeholder="Send a message..." maxlength="200">
+                            <button class="btn btn-gold" id="sendChatBtn" style="padding: 8px 12px;">📤</button>
+                        </div>
+                    </div>
+
+                    <!-- Leaderboard -->
+                    <div class="card" style="margin-top: 15px;">
+                        <h3 style="margin-bottom: 12px; font-size: 16px;">🏆 Leaderboard</h3>
+                        <div id="leaderboardList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game State Management
+        class GameState {
+            constructor() {
+                this.playerId = this.generateId();
+                this.playerName = '';
+                this.roomCode = '';
+                this.currentSession = 1;
+                this.maxSessions = 15;
+                this.phase = 'waiting';
+                this.players = [];
+                this.playerRole = null;
+                this.knownPlayers = [];
+                this.messages = [];
+                this.crisis = '';
+                this.ministerOptions = null;
+                this.announcement = '';
+            }
+
+            generateId() {
+                return Math.random().toString(36).substring(2, 15);
+            }
+
+            generateRoomCode() {
+                return "KW-" + Math.random().toString(36).substring(2, 6).toUpperCase();
+            }
+        }
+
+        // Role Configuration
+        const ROLES = {
+            king: {
+                name: 'The King',
+                description: 'You rule the kingdom',
+                icon: '👑',
+                color: '#F59E0B',
+                tip: 'Make wise decisions to survive 15 sessions and earn 1000 bonus points.'
+            },
+            minister: {
+                name: 'The Minister',
+                description: 'Advisor to the King',
+                icon: '📜',
+                color: '#3B82F6',
+                tip: 'Find and identify the Secret Agent to win immediately with 3000 points.'
+            },
+            villager: {
+                name: 'The Villager',
+                description: 'Wants prosperity for all',
+                icon: '🏠',
+                color: '#10B981',
+                tip: 'Work with the Secret Agent to create scenarios. Earn 100 points for villager-friendly decisions.'
+            },
+            secret_agent: {
+                name: 'The Secret Agent',
+                description: 'Plotting to take the throne',
+                icon: '🎭',
+                color: '#EF4444',
+                tip: 'Manipulate situations to become King and earn 700 points. Work secretly with the Villager.'
+            }
+        };
+
+        // Phase Information
+        const PHASES = {
+            waiting: { name: 'Waiting for Players', icon: '⏳', description: 'Gathering the royal court...' },
+            crisis_creation: { name: 'Crisis Creation', icon: '⚠️', description: 'Creating a crisis scenario...' },
+            minister_decision: { name: 'Minister Decision', icon: '📜', description: 'Preparing policy options...' },
+            king_choice: { name: 'King Choice', icon: '👑', description: 'The King must choose...' },
+            minister_announcement: { name: 'Announcement', icon: '📢', description: 'Minister announces decision...' },
+            voting: { name: 'Voting Phase', icon: '🗳️', description: 'People decide the fate...' },
+            session_end: { name: 'Session Complete', icon: '✅', description: 'Calculating results...' },
+            game_complete: { name: 'Game Complete', icon: '🏆', description: 'The kingdom has spoken!' }
+        };
+
+        // Mock Storage for Standalone Version
+        class MockStorage {
+            constructor() {
+                this.rooms = new Map();
+            }
+
+            createRoom(roomCode, hostId, hostName) {
+                const room = {
+                    roomCode,
+                    hostPlayerId: hostId,
+                    status: 'waiting',
+                    currentSession: 1,
+                    maxSessions: 15,
+                    phase: 'waiting',
+                    players: [{
+                        playerId: hostId,
+                        name: hostName,
+                        role: null,
+                        score: 0,
+                        sessionsSurvived: 0,
+                        isConnected: true
+                    }],
+                    messages: [],
+                    crisis: '',
+                    ministerOptions: null,
+                    announcement: ''
+                };
+                this.rooms.set(roomCode, room);
+                return room;
+            }
+
+            getRoom(roomCode) {
+                return this.rooms.get(roomCode);
+            }
+
+            addPlayer(roomCode, playerId, playerName) {
+                const room = this.rooms.get(roomCode);
+                if (!room || room.players.length >= 4) return null;
+
+                const player = {
+                    playerId,
+                    name: playerName,
+                    role: null,
+                    score: 0,
+                    sessionsSurvived: 0,
+                    isConnected: true
+                };
+
+                room.players.push(player);
+
+                // Start game if we have 2+ players (for demo)
+                if (room.players.length >= 2 && room.phase === 'waiting') {
+                    this.startGame(roomCode);
+                }
+
+                return room;
+            }
+
+            startGame(roomCode) {
+                const room = this.rooms.get(roomCode);
+                if (!room) return;
+
+                const roles = ['king', 'minister', 'villager', 'secret_agent'];
+                const shuffledRoles = this.shuffleArray(roles);
+
+                room.players.forEach((player, index) => {
+                    player.role = shuffledRoles[index] || 'villager';
+                });
+
+                room.status = 'playing';
+                room.phase = 'crisis_creation';
+            }
+
+            shuffleArray(array) {
+                const shuffled = [...array];
+                for (let i = shuffled.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+                }
+                return shuffled;
+            }
+
+            addMessage(roomCode, playerId, content) {
+                const room = this.rooms.get(roomCode);
+                if (!room) return;
+
+                const player = room.players.find(p => p.playerId === playerId);
+                if (!player) return;
+
+                const message = {
+                    sender: player.name,
+                    role: player.role || 'unknown',
+                    content,
+                    timestamp: new Date()
+                };
+
+                room.messages.push(message);
+                return message;
+            }
+        }
+
+        // Global variables
+        let gameState = new GameState();
+        let mockStorage = new MockStorage();
+
+        // UI Functions
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function updateGameUI() {
+            // Update header
+            document.getElementById('currentRoomCode').textContent = gameState.roomCode;
+            document.getElementById('currentSession').textContent = gameState.currentSession;
+            document.getElementById('maxSessions').textContent = gameState.maxSessions;
+            document.getElementById('playerCount').textContent = gameState.players.length;
+
+            // Update progress bar
+            const progress = (gameState.currentSession / gameState.maxSessions) * 100;
+            document.getElementById('sessionProgress').style.width = progress + '%';
+
+            // Update phase
+            const phase = PHASES[gameState.phase] || PHASES.waiting;
+            document.getElementById('phaseIcon').textContent = phase.icon;
+            document.getElementById('phaseName').textContent = phase.name;
+            document.getElementById('phaseDescription').textContent = phase.description;
+
+            // Update role card
+            if (gameState.playerRole) {
+                updateRoleCard();
+            }
+
+            // Update other UI elements
+            updatePlayersList();
+            updateLeaderboard();
+            updatePhaseContent();
+
+            // Update crisis display
+            if (gameState.crisis) {
+                document.getElementById('crisisDisplay').classList.remove('hidden');
+                document.getElementById('crisisText').textContent = gameState.crisis;
+            } else {
+                document.getElementById('crisisDisplay').classList.add('hidden');
+            }
+        }
+
+        function updateRoleCard() {
+            const role = ROLES[gameState.playerRole];
+            if (!role) return;
+
+            const roleCard = document.getElementById('roleCard');
+            roleCard.className = `role-card role-${gameState.playerRole}`;
+
+            document.getElementById('roleName').textContent = role.name;
+            document.getElementById('roleDescription').textContent = role.description;
+            document.getElementById('roleTip').textContent = role.tip;
+            document.querySelector('.role-icon').textContent = role.icon;
+
+            // Update player score
+            const currentPlayer = gameState.players.find(p => p.playerId === gameState.playerId);
+            if (currentPlayer) {
+                document.getElementById('playerScore').textContent = currentPlayer.score;
+                document.getElementById('sessionsSurvived').textContent = currentPlayer.sessionsSurvived || 0;
+            }
+
+            // Show/hide sessions info for King
+            document.getElementById('sessionsInfo').style.display = 
+                gameState.playerRole === 'king' ? 'flex' : 'none';
+
+            // Update known players
+            if (gameState.knownPlayers && gameState.knownPlayers.length > 0) {
+                document.getElementById('knownPlayers').classList.remove('hidden');
+                const knownList = document.getElementById('knownPlayersList');
+                knownList.innerHTML = gameState.knownPlayers.map(player => 
+                    `<div><strong>${player.name}</strong> - ${ROLES[player.role]?.name || player.role}</div>`
+                ).join('');
+            } else {
+                document.getElementById('knownPlayers').classList.add('hidden');
+            }
+        }
+
+        function updatePlayersList() {
+            const playersList = document.getElementById('playersList');
+            playersList.innerHTML = gameState.players.map(player => {
+                const role = player.role ? ROLES[player.role] : null;
+                const roleColor = role ? role.color : '#94a3b8';
+                const roleIcon = role ? role.icon : '❓';
+                const roleName = role ? role.name.replace('The ', '') : 'Unknown';
+
+                return `
+                    <li class="player-item" style="--role-color: ${roleColor};">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 24px; height: 24px; border-radius: 50%; background: ${roleColor}; display: flex; align-items: center; justify-content: center; font-size: 12px;">
+                                ${roleIcon}
+                            </div>
+                            <span style="font-weight: 600; font-size: 14px;">${player.name}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <span style="font-size: 11px; color: var(--text-muted);">${roleName}</span>
+                            <div style="width: 6px; height: 6px; border-radius: 50%; background: ${player.isConnected ? '#10B981' : '#EF4444'};"></div>
+                        </div>
+                    </li>
+                `;
+            }).join('');
+        }
+
+        function updateLeaderboard() {
+            const sortedPlayers = [...gameState.players].sort((a, b) => b.score - a.score);
+            const leaderboardList = document.getElementById('leaderboardList');
+            
+            leaderboardList.innerHTML = sortedPlayers.map((player, index) => {
+                const isFirst = index === 0;
+                return `
+                    <div class="leaderboard-item ${isFirst ? 'first' : ''}">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="rank ${isFirst ? 'first' : ''}">${index + 1}</span>
+                            <span style="font-weight: 600; font-size: 14px;">${player.name}</span>
+                        </div>
+                        <span style="font-weight: bold;">${player.score}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updatePhaseContent() {
+            const phaseContent = document.getElementById('phaseContent');
+            
+            switch (gameState.phase) {
+                case 'waiting':
+                    phaseContent.innerHTML = `
+                        <div class="loading">
+                            <div class="spinner"></div>
+                            <p>Waiting for players... (${gameState.players.length}/4)</p>
+                        </div>
+                    `;
+                    break;
+
+                case 'crisis_creation':
+                    if (gameState.playerRole === 'villager' || gameState.playerRole === 'secret_agent') {
+                        phaseContent.innerHTML = `
+                            <h4 style="margin-bottom: 12px;">Create Crisis Scenario</h4>
+                            <textarea id="crisisInput" placeholder="Describe the crisis facing the kingdom..." style="margin-bottom: 12px; min-height: 80px;"></textarea>
+                            <button class="btn btn-gold btn-full" onclick="submitCrisis()">Submit Crisis</button>
+                        `;
+                    } else {
+                        phaseContent.innerHTML = `
+                            <div style="text-align: center; padding: 30px;">
+                                <p style="color: var(--text-muted);">Villager and Secret Agent are creating a crisis scenario...</p>
+                            </div>
+                        `;
+                    }
+                    break;
+
+                case 'minister_decision':
+                    if (gameState.playerRole === 'minister') {
+                        phaseContent.innerHTML = `
+                            <h4 style="margin-bottom: 12px;">Create Policy Options</h4>
+                            <div style="margin-bottom: 12px;">
+                                <label style="margin-bottom: 4px; display: block; font-size: 12px;">Option A (Benefits King)</label>
+                                <textarea id="optionA" placeholder="Policy that benefits the King..." style="margin-bottom: 8px; min-height: 60px;"></textarea>
+                            </div>
+                            <div style="margin-bottom: 12px;">
+                                <label style="margin-bottom: 4px; display: block; font-size: 12px;">Option B (Benefits Villagers)</label>
+                                <textarea id="optionB" placeholder="Policy that benefits the Villagers..." style="min-height: 60px;"></textarea>
+                            </div>
+                            <button class="btn btn-primary btn-full" onclick="submitMinisterOptions()">Submit Options</button>
+                        `;
+                    } else {
+                        phaseContent.innerHTML = `
+                            <div style="text-align: center; padding: 30px;">
+                                <p style="color: var(--text-muted);">Minister is preparing policy options...</p>
+                            </div>
+                        `;
+                    }
+                    break;
+
+                case 'king_choice':
+                    if (gameState.playerRole === 'king' && gameState.ministerOptions) {
+                        phaseContent.innerHTML = `
+                            <h4 style="margin-bottom: 12px;">Choose Policy</h4>
+                            <button class="btn btn-full" style="background: rgba(51, 65, 85, 0.8); color: white; padding: 12px; text-align: left; margin-bottom: 8px;" onclick="makeKingChoice('A')">
+                                <div style="font-weight: bold; margin-bottom: 4px; font-size: 14px;">Option A</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">${gameState.ministerOptions.optionA}</div>
+                            </button>
+                            <button class="btn btn-full" style="background: rgba(51, 65, 85, 0.8); color: white; padding: 12px; text-align: left;" onclick="makeKingChoice('B')">
+                                <div style="font-weight: bold; margin-bottom: 4px; font-size: 14px;">Option B</div>
+                                <div style="font-size: 12px; color: var(--text-muted);">${gameState.ministerOptions.optionB}</div>
+                            </button>
+                        `;
+                    } else {
+                        phaseContent.innerHTML = `
+                            <div style="text-align: center; padding: 30px;">
+                                <p style="color: var(--text-muted);">King is making a decision...</p>
+                            </div>
+                        `;
+                    }
+                    break;
+
+                case 'minister_announcement':
+                    if (gameState.playerRole === 'minister') {
+                        phaseContent.innerHTML = `
+                            <h4 style="margin-bottom: 12px;">Announce King's Decision</h4>
+                            <p style="color: var(--text-muted); margin-bottom: 12px; font-size: 12px;">Tell the kingdom what the King chose (you may lie):</p>
+                            <textarea id="announcementInput" placeholder="The King has decided to..." style="margin-bottom: 12px; min-height: 60px;"></textarea>
+                            <button class="btn btn-primary btn-full" onclick="makeAnnouncement()">Make Announcement</button>
+                        `;
+                    } else {
+                        phaseContent.innerHTML = `
+                            <div style="text-align: center; padding: 30px;">
+                                <p style="color: var(--text-muted);">Minister is preparing the announcement...</p>
+                            </div>
+                        `;
+                    }
+                    break;
+
+                case 'voting':
+                    if (gameState.playerRole === 'villager' || gameState.playerRole === 'secret_agent') {
+                        phaseContent.innerHTML = `
+                            <h4 style="margin-bottom: 12px;">Vote on King's Rule</h4>
+                            ${gameState.announcement ? `
+                                <div style="background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 6px; padding: 10px; margin-bottom: 12px;">
+                                    <p style="color: #cbd5e1; font-size: 12px;">${gameState.announcement}</p>
+                                </div>
+                            ` : ''}
+                            <div class="grid grid-2">
+                                <button class="btn btn-success" onclick="vote('pass')">Keep King</button>
+                                <button class="btn btn-danger" onclick="vote('change')">Change King</button>
+                            </div>
+                        `;
+                    } else {
+                        phaseContent.innerHTML = `
+                            <div style="text-align: center; padding: 30px;">
+                                <p style="color: var(--text-muted);">Villager and Secret Agent are voting...</p>
+                            </div>
+                        `;
+                    }
+                    break;
+
+                default:
+                    phaseContent.innerHTML = `
+                        <div style="text-align: center; padding: 30px;">
+                            <p style="color: var(--text-muted);">Game in progress...</p>
+                        </div>
+                    `;
+            }
+        }
+
+        function addChatMessage(message) {
+            const chatMessages = document.getElementById('chatMessages');
+            const role = ROLES[message.role] || { color: '#94a3b8', icon: '❓' };
+            
+            // Remove empty state if it exists
+            const emptyState = chatMessages.querySelector('div[style*="text-align: center"]');
+            if (emptyState) {
+                emptyState.remove();
+            }
+
+            const messageElement = document.createElement('div');
+            messageElement.className = 'chat-message';
+            messageElement.innerHTML = `
+                <div class="message-avatar" style="background: ${role.color};">
+                    ${role.icon}
+                </div>
+                <div class="message-content">
+                    <div class="message-sender" style="color: ${role.color};">${message.sender}</div>
+                    <div class="message-text">${message.content}</div>
+                </div>
+            `;
+
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Game Actions
+        function submitCrisis() {
+            const crisisInput = document.getElementById('crisisInput');
+            const crisis = crisisInput.value.trim();
+            
+            if (!crisis) return;
+
+            gameState.crisis = crisis;
+            gameState.phase = 'minister_decision';
+            
+            const room = mockStorage.getRoom(gameState.roomCode);
+            if (room) {
+                room.crisis = crisis;
+                room.phase = 'minister_decision';
+            }
+
+            updateGameUI();
+        }
+
+        function submitMinisterOptions() {
+            const optionA = document.getElementById('optionA').value.trim();
+            const optionB = document.getElementById('optionB').value.trim();
+            
+            if (!optionA || !optionB) return;
+
+            gameState.ministerOptions = { optionA, optionB };
+            gameState.phase = 'king_choice';
+            
+            const room = mockStorage.getRoom(gameState.roomCode);
+            if (room) {
+                room.ministerOptions = { optionA, optionB };
+                room.phase = 'king_choice';
+            }
+
+            updateGameUI();
+        }
+
+        function makeKingChoice(choice) {
+            gameState.kingChoice = choice;
+            gameState.phase = 'minister_announcement';
+            
+            const room = mockStorage.getRoom(gameState.roomCode);
+            if (room) {
+                room.kingChoice = choice;
+                room.phase = 'minister_announcement';
+            }
+
+            updateGameUI();
+        }
+
+        function makeAnnouncement() {
+            const announcementInput = document.getElementById('announcementInput');
+            const announcement = announcementInput.value.trim();
+            
+            if (!announcement) return;
+
+            gameState.announcement = announcement;
+            gameState.phase = 'voting';
+            
+            const room = mockStorage.getRoom(gameState.roomCode);
+            if (room) {
+                room.announcement = announcement;
+                room.phase = 'voting';
+            }
+
+            updateGameUI();
+        }
+
+        function vote(voteType) {
+            // Simulate session completion
+            gameState.currentSession++;
+            gameState.phase = gameState.currentSession > gameState.maxSessions ? 'game_complete' : 'crisis_creation';
+            gameState.crisis = '';
+            gameState.ministerOptions = null;
+            gameState.announcement = '';
+
+            // Award some demo points
+            const currentPlayer = gameState.players.find(p => p.playerId === gameState.playerId);
+            if (currentPlayer) {
+                currentPlayer.score += Math.floor(Math.random() * 100) + 25;
+                if (currentPlayer.role === 'king') {
+                    currentPlayer.sessionsSurvived++;
+                }
+            }
+
+            updateGameUI();
+        }
+
+        function addTestPlayer() {
+            const testNames = ['Alice', 'Bob', 'Charlie', 'Diana'];
+            const availableName = testNames.find(name => 
+                !gameState.players.find(p => p.name === name)
+            );
+            
+            if (availableName && gameState.players.length < 4) {
+                const room = mockStorage.addPlayer(gameState.roomCode, gameState.generateId(), availableName);
+                if (room) {
+                    gameState.players = room.players;
+                    gameState.phase = room.phase;
+                    
+                    // Update player role if game started
+                    const currentPlayer = room.players.find(p => p.playerId === gameState.playerId);
+                    if (currentPlayer && currentPlayer.role && !gameState.playerRole) {
+                        gameState.playerRole = currentPlayer.role;
+                        
+                        // Set known players
+                        if (currentPlayer.role === 'villager') {
+                            const agent = room.players.find(p => p.role === 'secret_agent');
+                            if (agent) gameState.knownPlayers = [{ name: agent.name, role: 'secret_agent' }];
+                        } else if (currentPlayer.role === 'secret_agent') {
+                            const villager = room.players.find(p => p.role === 'villager');
+                            if (villager) gameState.knownPlayers = [{ name: villager.name, role: 'villager' }];
+                        }
+                    }
+                    
+                    updateGameUI();
+                }
+            }
+        }
+
+        function sendChatMessage() {
+            const chatInput = document.getElementById('chatInput');
+            const content = chatInput.value.trim();
+            
+            if (!content) return;
+
+            const message = mockStorage.addMessage(gameState.roomCode, gameState.playerId, content);
+            if (message) {
+                gameState.messages.push(message);
+                addChatMessage(message);
+                chatInput.value = '';
+            }
+        }
+
+        function leaveGame() {
+            if (confirm('Are you sure you want to leave the game?')) {
+                gameState = new GameState();
+                showScreen('lobby');
+            }
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Lobby events
+            document.getElementById('createRoomBtn').addEventListener('click', function() {
+                const playerName = document.getElementById('playerName').value.trim();
+                if (!playerName) {
+                    alert('Please enter your name');
+                    return;
+                }
+
+                const roomCode = gameState.generateRoomCode();
+                gameState.playerName = playerName;
+                gameState.roomCode = roomCode;
+
+                const room = mockStorage.createRoom(roomCode, gameState.playerId, playerName);
+                gameState.players = room.players;
+
+                showScreen('game');
+                updateGameUI();
+            });
+
+            document.getElementById('joinRoomBtn').addEventListener('click', function() {
+                const playerName = document.getElementById('playerName').value.trim();
+                const roomCode = document.getElementById('roomCode').value.trim().toUpperCase();
+                
+                if (!playerName || !roomCode) {
+                    alert('Please enter your name and room code');
+                    return;
+                }
+
+                gameState.playerName = playerName;
+                gameState.roomCode = roomCode;
+
+                let room = mockStorage.getRoom(roomCode);
+                if (!room) {
+                    room = mockStorage.createRoom(roomCode, gameState.playerId, playerName);
+                } else {
+                    room = mockStorage.addPlayer(roomCode, gameState.playerId, playerName);
+                    if (!room) {
+                        alert('Room is full or does not exist');
+                        return;
+                    }
+                }
+
+                gameState.players = room.players;
+                gameState.phase = room.phase;
+
+                // Set role if game started
+                const currentPlayer = room.players.find(p => p.playerId === gameState.playerId);
+                if (currentPlayer && currentPlayer.role) {
+                    gameState.playerRole = currentPlayer.role;
+                    
+                    // Set known players
+                    if (currentPlayer.role === 'villager') {
+                        const agent = room.players.find(p => p.role === 'secret_agent');
+                        if (agent) gameState.knownPlayers = [{ name: agent.name, role: 'secret_agent' }];
+                    } else if (currentPlayer.role === 'secret_agent') {
+                        const villager = room.players.find(p => p.role === 'villager');
+                        if (villager) gameState.knownPlayers = [{ name: villager.name, role: 'villager' }];
+                    }
+                }
+
+                showScreen('game');
+                updateGameUI();
+            });
+
+            // Game events
+            document.getElementById('sendChatBtn').addEventListener('click', sendChatMessage);
+            document.getElementById('chatInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendChatMessage();
+                }
+            });
+
+            document.getElementById('addTestBtn').addEventListener('click', addTestPlayer);
+            document.getElementById('leaveGameBtn').addEventListener('click', leaveGame);
+
+            // Auto-uppercase room code
+            document.getElementById('roomCode').addEventListener('input', function(e) {
+                e.target.value = e.target.value.toUpperCase();
+            });
+
+            // Enable Enter key submission in lobby
+            document.getElementById('playerName').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('createRoomBtn').click();
+                }
+            });
+
+            document.getElementById('roomCode').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    document.getElementById('joinRoomBtn').click();
+                }
+            });
+        });
+
+        // PWA Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                const swCode = `
+                    const CACHE_NAME = 'kingdoms-whisper-v1';
+                    const urlsToCache = ['/'];
+                    self.addEventListener('install', event => {
+                        event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache)));
+                    });
+                    self.addEventListener('fetch', event => {
+                        event.respondWith(caches.match(event.request).then(response => response || fetch(event.request)));
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl);
+            });
+        }
+
+        // Export for potential app conversion
+        window.KingdomsWhisper = {
+            gameState,
+            mockStorage,
+            ROLES,
+            PHASES,
+            updateGameUI,
+            addTestPlayer,
+            sendChatMessage,
+            leaveGame
+        };
+    </script>
+</body>
+</html>
